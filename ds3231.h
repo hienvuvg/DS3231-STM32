@@ -27,7 +27,8 @@ struct ds_time {
 uint8_t decToBcd(int val);
 int bcdToDec(uint8_t val);
 
-void Set_Time (uint8_t sec, uint8_t min, uint8_t hour, uint8_t dow, uint8_t dom, uint8_t month, uint8_t year);
+void Set_Time_2 (uint8_t sec, uint8_t min, uint8_t hour, uint8_t dow, uint8_t dom, uint8_t month, uint8_t year);
+void Set_Time(struct ds_time set_time);
 struct ds_time Get_Time(void) ;
 
 float Get_Temp (void);

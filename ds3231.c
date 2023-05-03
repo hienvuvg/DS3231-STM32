@@ -14,7 +14,7 @@ int bcdToDec(uint8_t val) {
 
 // function to set time
 
-void Set_Time(uint8_t sec, uint8_t min, uint8_t hour, uint8_t dow, uint8_t dom,
+void Set_Time_2(uint8_t sec, uint8_t min, uint8_t hour, uint8_t dow, uint8_t dom,
 		uint8_t month, uint8_t year) {
 	uint8_t set_time[7];
 	set_time[0] = decToBcd(sec);
@@ -26,6 +26,19 @@ void Set_Time(uint8_t sec, uint8_t min, uint8_t hour, uint8_t dow, uint8_t dom,
 	set_time[6] = decToBcd(year);
 
 	HAL_I2C_Mem_Write(&RTC_I2C, DS3231_ADDRESS, 0x00, 1, set_time, 7, 1000);
+}
+
+void Set_Time(struct ds_time set_time) {
+	uint8_t convt_time[7];
+	convt_time[0] = decToBcd(set_time.seconds);
+	convt_time[1] = decToBcd(set_time.minutes);
+	convt_time[2] = decToBcd(set_time.hour);
+	convt_time[3] = decToBcd(set_time.dayofweek);
+	convt_time[4] = decToBcd(set_time.date);
+	convt_time[5] = decToBcd(set_time.month);
+	convt_time[6] = decToBcd(set_time.year);
+
+	HAL_I2C_Mem_Write(&RTC_I2C, DS3231_ADDRESS, 0x00, 1, convt_time, 7, 1000);
 }
 
 struct ds_time Get_Time(void) {
