@@ -101,15 +101,30 @@ int main(void)
 
 	printf("Start\n");
 
-	if(1){
-		 struct ds_time set_time;
-		 set_time.seconds = 2;
-		 set_time.minutes = 3;
-		 set_time.hour = 4;
-		 set_time.dayofweek = 5;
-		 set_time.date = 6;
-		 set_time.month = 7;
-		 set_time.year = 8;
+	if(0){
+    struct ds_time set_time;
+    uint8_t date[3] = {23,05,22}; // YY-MM-DD
+    uint8_t time[3] = {23,12,11}; // HH:MM:SS
+
+    // Bounding time due to 10s programming lag
+    if (time[2] >= 50) {
+      time[2] = time[2] - 50;
+      if (time[1] == 59) {
+        time[1] = 0;
+        if (time[0] == 23) time [0] = 0;
+        else time[0]++;
+      }
+      else time[1]++;
+    }
+    else time[2] += 10; // Compenstating for 10s
+      
+    set_time.seconds  = time[2];
+    set_time.minutes  = time[1];
+    set_time.hour     = time[0];
+    set_time.dayofweek  = 5;
+    set_time.date     = date[2];
+    set_time.month    = date[1];
+    set_time.year     = date[0];
 		Set_Time(set_time);
 	}
 
@@ -119,7 +134,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 		struct ds_time rtc_time;
+		HAL_GPIO_WritePin(RTC_VDD_GPIO_Port, RTC_VDD_Pin, GPIO_PIN_SET);
+		HAL_Delay(500);
 		rtc_time = Get_Time();
+		HAL_GPIO_WritePin(RTC_VDD_GPIO_Port, RTC_VDD_Pin, GPIO_PIN_RESET);
 
 		printf("%02d:%02d:%02d\t", rtc_time.hour, rtc_time.minutes, rtc_time.seconds);
 		printf("%02d-%02d-20%02d\n", rtc_time.month, rtc_time.date, rtc_time.year);
@@ -260,7 +278,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(RTC_VDD_GPIO_Port, RTC_VDD_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : RTC_VDD_Pin */
+  GPIO_InitStruct.Pin = RTC_VDD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(RTC_VDD_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LD2_Pin */
   GPIO_InitStruct.Pin = LD2_Pin;
