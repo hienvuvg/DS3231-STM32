@@ -102,30 +102,36 @@ int main(void)
 	printf("Start\n");
 
 	if(0){
-    struct ds_time set_time;
     uint8_t date[3] = {23,05,22}; // YY-MM-DD
     uint8_t time[3] = {23,12,11}; // HH:MM:SS
+    uint8_t lock_value = 1; // From 1 to 7
 
-    // Bounding time due to 10s programming lag
-    if (time[2] >= 50) {
-      time[2] = time[2] - 50;
-      if (time[1] == 59) {
-        time[1] = 0;
-        if (time[0] == 23) time [0] = 0;
-        else time[0]++;
+    struct ds_time rtc_time = Get_Time();
+
+    if (rtc_time.dayofweek != lock_value) { // Only set time when day of week is different
+      struct ds_time set_time;
+
+      // Bounding time due to 10s programming lag
+      if (time[2] >= 50) {
+        time[2] = time[2] - 50;
+        if (time[1] == 59) {
+          time[1] = 0;
+          if (time[0] == 23) time [0] = 0;
+          else time[0]++;
+        }
+        else time[1]++;
       }
-      else time[1]++;
+      else time[2] += 10; // Compenstating for 10s
+
+      set_time.seconds  = time[2];
+      set_time.minutes  = time[1];
+      set_time.hour     = time[0];
+      set_time.dayofweek  = lock_value; // Use day of week as the lock value
+      set_time.date     = date[2];
+      set_time.month    = date[1];
+      set_time.year     = date[0];
+      Set_Time(set_time);
     }
-    else time[2] += 10; // Compenstating for 10s
-      
-    set_time.seconds  = time[2];
-    set_time.minutes  = time[1];
-    set_time.hour     = time[0];
-    set_time.dayofweek  = 5;
-    set_time.date     = date[2];
-    set_time.month    = date[1];
-    set_time.year     = date[0];
-		Set_Time(set_time);
 	}
 
   /* USER CODE END 2 */
